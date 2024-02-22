@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, ChangeEvent } from "react";
 
-const Live = () => {
-  const videoRef = useRef(null);
-  const [streamId, setStreamId] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+const LivePage: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [streamId, setStreamId] = useState<string>("");
+  const [isStreaming, setIsStreaming] = useState<boolean>(false);
 
-  const handleStreamIdChange = (e) => {
+  const handleStreamIdChange = (e: ChangeEvent<HTMLInputElement>) => {
     setStreamId(e.target.value);
   };
 
@@ -17,8 +17,10 @@ const Live = () => {
         video: true,
         audio: true, // Enable audio if needed
       });
-      videoRef.current.srcObject = mediaStream;
-      setIsStreaming(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        setIsStreaming(true);
+      }
     } catch (error) {
       console.error("Error accessing the live stream:", error);
     }
@@ -51,4 +53,4 @@ const Live = () => {
   );
 };
 
-export default Live;
+export default LivePage;

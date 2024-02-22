@@ -1,15 +1,15 @@
 "use client";
+import React, { useState, useRef, ChangeEvent } from "react";
 import { Button, Input, Textarea } from "@nextui-org/react";
-import React, { useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-const LiveStreamingPage = () => {
-  const videoRef = useRef(null);
-  const [streamId, setStreamId] = useState("");
-  const [isLive, setIsLive] = useState(false);
-  const [localStream, setLocalStream] = useState(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+const LiveStreamingPage: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [streamId, setStreamId] = useState<string>("");
+  const [isLive, setIsLive] = useState<boolean>(false);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   const startStreaming = async () => {
     if (!title || !description) {
@@ -28,7 +28,9 @@ const LiveStreamingPage = () => {
         audio: true, // Enable audio if needed
       });
       setLocalStream(mediaStream);
-      videoRef.current.srcObject = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
       setIsLive(true);
     } catch (error) {
       console.error("Error accessing webcam:", error);
@@ -50,12 +52,16 @@ const LiveStreamingPage = () => {
         placeholder="Video Title"
         type="text"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          setTitle(e.target.value)
+        }
       />
       <Textarea
         placeholder="Video Description"
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+          setDescription(e.target.value)
+        }
       />
       <div>
         <video ref={videoRef} autoPlay muted style={{ width: "100%" }}></video>

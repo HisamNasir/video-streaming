@@ -43,7 +43,7 @@ const NavBar = () => {
         <Link color="foreground" href="/">
           Home
         </Link>
-        <Link href="/live" color="foreground">
+        <Link href="/livepage" color="foreground">
           Live
         </Link>
         <Link color="foreground" href="/settings/">

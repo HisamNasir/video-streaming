@@ -1,119 +1,69 @@
 "use client";
+import { Button, Input, Textarea } from "@nextui-org/react";
 import React, { useState, useRef } from "react";
-import { Button, Card, Input, Textarea } from "@nextui-org/react";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { storage, firestore } from "../../util/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 
 const LiveStreamingPage = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isLive, setIsLive] = useState<boolean>(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [videoDocId, setVideoDocId] = useState<string>("");
-  const [recorder, setRecorder] = useState<any>(null);
-  const [recordedChunks, setRecordedChunks] = useState<any[]>([]);
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const videoRef = useRef(null);
+  const [streamId, setStreamId] = useState("");
+  const [isLive, setIsLive] = useState(false);
+  const [localStream, setLocalStream] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
   const startStreaming = async () => {
     if (!title || !description) {
       alert("Please enter title and description");
       return;
     }
-    const userData = JSON.parse(sessionStorage.getItem("user") ?? "{}");
-    if (!userData || !userData.name || !userData.email) {
-      alert("User data not found. Please log in again.");
-      return;
-    }
+
+    // Generate a unique stream ID using UUID
+    const newStreamId = uuidv4();
+    setStreamId(newStreamId);
+
+    // Set up local video stream using getUserMedia
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: true,
+        audio: true, // Enable audio if needed
       });
-      setStream(mediaStream);
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
+      setLocalStream(mediaStream);
+      videoRef.current.srcObject = mediaStream;
       setIsLive(true);
-
-      const uploadedVideosRef = collection(firestore, "UploadedVideos");
-      const newVideoDocRef = await addDoc(uploadedVideosRef, {
-        videoName: title,
-        videoDescription: description,
-        uploaderName: userData.name,
-        uploaderEmail: userData.email,
-        videoURL: "",
-        thumbnailImageUrl: "",
-        uploadedDate: serverTimestamp(),
-        likesCount: 0,
-        comments: [],
-      });
-      console.log("Document written with ID: ", newVideoDocRef.id);
-      setVideoDocId(newVideoDocRef.id);
     } catch (error) {
       console.error("Error accessing webcam:", error);
     }
   };
-  const stopStreaming = async () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
-      setIsLive(false);
 
-      try {
-        await deleteDoc(
-          doc(collection(firestore, "UploadedVideos"), videoDocId)
-        );
-        console.log("Document deleted successfully");
-      } catch (error) {
-        console.error("Error deleting document:", error);
-      }
+  const stopStreaming = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+      setIsLive(false);
     }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold">Live Streaming Page</h1>
-      {!isLive && (
-        <>
-          <Input
-            placeholder="Video Title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <Textarea
-            placeholder="Video Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </>
-      )}
-      <Card className="p-4">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          style={{ width: "auto", height: "70%" }}
-        ></video>
-        {isLive && (
-          <>
-            <p className="text-lg font-bold mt-2"> {title}</p>
-            <p className="text-lg mt-2"> {description}</p>
-          </>
-        )}
-      </Card>
+      <Input
+        placeholder="Video Title"
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <Textarea
+        placeholder="Video Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <div>
+        <video ref={videoRef} autoPlay muted style={{ width: "100%" }}></video>
+        {isLive && <p>Stream ID: {streamId}</p>}
+      </div>
       <div className="flex justify-end">
         {isLive ? (
-          <Button
-            color="primary"
-            className="animate-pulse"
-            onClick={stopStreaming}
-          >
+          <Button color="primary" onClick={stopStreaming}>
             Stop Streaming
           </Button>
         ) : (

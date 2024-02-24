@@ -1,12 +1,17 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+interface Props {
+  user: any; // Adjust the type of user as per your application
+}
 
-export const VideoPlayer = ({ user }) => {
-  const ref = useRef();
+export const VideoPlayer: React.FC<Props> = ({ user }) => {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    user.videoTrack.play(ref.current);
-  }, []);
+    if (ref.current && user.videoTrack) {
+      user.videoTrack.play(ref.current);
+    }
+  }, [user.videoTrack]);
 
   return (
     <div>

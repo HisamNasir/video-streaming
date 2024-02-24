@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.2.9",
+    "agora-rtc-sdk-ng": "^4.20.0",
     "firebase": "^10.8.0",
     "framer-motion": "^11.0.5",
     "next": "14.1.0",

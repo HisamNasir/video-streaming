@@ -43,9 +43,7 @@ const NavBar = () => {
         <Link color="foreground" href="/">
           Home
         </Link>
-        <Link href="/livepage" color="foreground">
-          Live
-        </Link>
+
         <Link color="foreground" href="/settings/">
           Settings
         </Link>

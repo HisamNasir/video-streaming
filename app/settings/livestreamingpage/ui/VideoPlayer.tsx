@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 interface Props {
-  user: any; // Adjust the type of user as per your application
+  user: any;
 }
 
 export const VideoPlayer: React.FC<Props> = ({ user }) => {
